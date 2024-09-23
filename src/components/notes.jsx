@@ -2,6 +2,7 @@ import { Button } from "@nextui-org/react";
 import { Input, Textarea } from "@nextui-org/input";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
+import Modals from "./moda;";
 
 function Notes() {
   const { register, handleSubmit,reset ,formState: { errors } } = useForm();
@@ -44,6 +45,7 @@ function Notes() {
         </div>
       </form>
       <div>
+      <Modals/>
       {formData.length > 0 && (
         <div className="mt-6 w-full max-w-lg">
           <h2 className="text-xl font-bold mb-4">Saved Notes:</h2>
