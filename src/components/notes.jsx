@@ -2,16 +2,23 @@ import { Button } from "@nextui-org/react";
 import { Input, Textarea } from "@nextui-org/input";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
-import Modals from "./moda;";
+import useNotificationStore from "../store/layout";''; // Import your store
 
 function Notes() {
-  const { register, handleSubmit,reset ,formState: { errors } } = useForm();
-  const [formData, setFormData] = useState([])
+  const { register, handleSubmit, reset, formState: { errors } } = useForm();
+  const [formData, setFormData] = useState([]);
+  const addNotification = useNotificationStore((state) => state.addNotification); // Get the addNotification function
 
   const onSubmit = (data) => {
-    setFormData((prevNotes)=>[...prevNotes, data])
-    console.log("Form Submitted : ",data);
-    reset()
+    setFormData((prevNotes) => [...prevNotes, data]);
+    console.log("Form Submitted: ", data);
+    reset();
+    addNotification('Note added successfully!', 'success');
+  };
+
+  const handleDelete = (index) => {
+    setFormData((prevNotes) => prevNotes.filter((_, i) => i !== index));
+    addNotification('Note deleted successfully!', 'success');
   };
 
   return (
@@ -23,19 +30,19 @@ function Notes() {
             type="text"
             name="title"
             label="Title"
-            {...register("title", { required: "Title is required" })} 
+            {...register("title", { required: "Title is required" })}
             className="w-full"
           />
-          {errors.title && <span className="text-red-500">{errors.title.message}</span>} 
+          {errors.title && <span className="text-red-500">{errors.title.message}</span>}
         </div>
         <div className="mb-6">
           <Textarea
             label="Notes"
-            {...register("notes", { required: "Notes is Required"})}
-            name="notes" 
+            {...register("notes", { required: "Notes are required" })}
+            name="notes"
             className="w-full"
           />
-          {errors.notes && <span className="text-red-500">{errors.notes.message}</span>} 
+          {errors.notes && <span className="text-red-500">{errors.notes.message}</span>}
         </div>
 
         <div className="mb-6">
@@ -45,21 +52,43 @@ function Notes() {
         </div>
       </form>
       <div>
-      <Modals/>
-      {formData.length > 0 && (
-        <div className="mt-6 w-full max-w-lg">
-          <h2 className="text-xl font-bold mb-4">Saved Notes:</h2>
-          <ul>
-            {formData.map((note, index) => (
-              <li key={index} className="mb-4 p-4 bg-white shadow rounded">
-                <p><strong>Title:</strong> {note.title}</p>
-                <p><strong>Notes:</strong> {note.notes}</p>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+        {formData.length > 0 && (
+          <div className="mt-6 w-full max-w-lg">
+            <h2 className="text-xl font-bold mb-4">Saved Notes:</h2>
+            <ul>
+              {formData.map((note, index) => (
+                <li key={index} className="mb-4 p-4 bg-white shadow rounded">
+                  <p><strong>Title:</strong> {note.title}</p>
+                  <p><strong>Notes:</strong> {note.notes}</p>
+                  <Button
+                    color="error"
+                    auto
+                    onClick={() => handleDelete(index)}
+                  >
+                    Delete
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
+      <NotificationList /> {/* Add this component to display notifications */}
+    </div>
+  );
+}
+
+// Component to display notifications
+function NotificationList() {
+  const notifications = useNotificationStore((state) => state.notifications);
+  
+  return (
+    <div className="fixed top-10 right-10">
+      {notifications.map((notif) => (
+        <div key={notif.id} className={`p-4 mb-2 rounded ${notif.type === 'success' ? 'bg-green-500' : 'bg-blue-500'} text-white`}>
+          {notif.message}
+        </div>
+      ))}
     </div>
   );
 }
