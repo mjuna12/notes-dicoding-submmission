@@ -3,68 +3,140 @@ import { Input, Textarea } from "@nextui-org/input";
 import { useForm } from "react-hook-form";
 import useNotesStore from "../store/notes";
 import SavedNotes from "./card";
-
+import ArchiveNotes from "./archive";
 
 function Notes() {
-  const { register, handleSubmit, reset, formState: { errors } } = useForm();
-  const { notes, addNote, deleteNote } = useNotesStore();
+  const {
+    register,
+    watch,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm();
+  const { notes, addNote, deleteNote, toggleArchiveNote } = useNotesStore();
 
+  const maxCharacters = 200;
+
+  const notesValue = watch("notes", "");
   const onSubmit = (data) => {
-    addNote(data)
+    addNote(data);
     reset();
   };
 
   const handleDelete = (index) => {
-    deleteNote(index)
+    deleteNote(index);
   };
 
-  return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-8 bg-gray-50">
-      <h1 className="text-2xl font-bold mb-4">Notes</h1>
-      <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-lg">
-        <div className="mb-4">
-          <Input
-            type="text"
-            name="title"
-            label="Title"
-            {...register("title", { required: "Title is required" })}
-            className="w-full"
-          />
-          {errors.title && <span className="text-red-500">{errors.title.message}</span>}
-        </div>
-        <div className="mb-6">
-          <Textarea
-            label="Notes"
-            {...register("notes", { required: "Notes are required" })}
-            name="notes"
-            className="w-full"
-          />
-          {errors.notes && <span className="text-red-500">{errors.notes.message}</span>}
-        </div>
+  const handleArchive = (index) => {
+    toggleArchiveNote(index);
+    console.log(index)
+  };
 
-        <div className="mb-6">
-          <Button color="primary" size="lg" type="submit" className="w-full">
+  const activeNotes = notes.filter((note) => !note.archived);
+  const archivedNotes = notes.filter((note) => note.archived);
+
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center p-8">
+      <div className="w-full max-w-lg rounded-lg shadow-lg p-6">
+        <h1 className="text-3xl font-bold mb-6 text-center">My Notes</h1>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <div className="mb-4">
+            <Input
+              color="primary"
+              type="text"
+              name="title"
+              label="Title"
+              {...register("title", { required: "Title is required" })}
+              className="w-full text-white"
+            />
+            {errors.title && (
+              <span className="text-red-500 text-sm">
+                {errors.title.message}
+              </span>
+            )}
+          </div>
+          <div className="mb-6">
+            <Textarea
+              color="primary"
+              label="Notes"
+              {...register("notes", {
+                required: "Notes are required",
+                maxLength: {
+                  value: 200,
+                  message: "Notes must be at least 200 characters long",
+                },
+              })}
+              name="notes"
+              className="w-full text-white"
+            />
+            {errors.notes && (
+              <span className="text-red-500 text-sm">
+                {errors.notes.message}
+              </span>
+            )}
+            <p className="text-sm text-gray-500">
+              {maxCharacters - notesValue.length} characters left
+            </p>
+          </div>
+          <Button
+            color="primary"
+            size="lg"
+            type="submit"
+            className="w-full bg-blue-600 hover:bg-blue-500 text-white"
+          >
             Add Notes
           </Button>
-        </div>
-      </form>
-      <div>
+        </form>
       </div>
-      {notes.length > 0 && (
-  <div className="mt-6 w-full max-w-lg">
-    <h2 className="text-xl font-bold mb-4">Saved Notes:</h2>
-    <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-      {notes.map((note, index) => (
-        <li key={index} className="flex flex-col mb-4">
-          <SavedNotes title={note.title} content={note.notes} onClick={() => handleDelete(index)} />
-        </li>
-      ))}
-    </ul>
-  </div>
-)}
 
+      {/* Saved Notes */}
+      <h2 className="text-2xl font-bold mt-6">Saved Notes</h2>
+      {activeNotes.length === 0 && (
+        <div className="flex items-center justify-center h-64 rounded-lg">
+          <p className="text-gray-500 text-lg font-semibold">No active notes available</p>
+        </div>
+      )}
+      {activeNotes.length > 0 && (
+        <div className="mt-10 w-full max-w-5xl">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {activeNotes.map((note, index) => (
+              <SavedNotes
+                key={index}
+                title={note.title}
+                notes={note.notes}
+                onClick={() => handleDelete(index)}
+                onArchive={() => handleArchive(index)}
+                archiveLabel="Archive"
+              />
+            ))}
+          </div>
+        </div>
+      )}
 
+      {/* Archive Notes */}
+      <h2 className="text-2xl font-bold mt-6">Archived Notes</h2>
+      {archivedNotes.length === 0 && (
+        <div className="flex items-center justify-center h-64 rounded-lg">
+          <p className="text-gray-500 text-lg font-semibold">No archived notes available</p>
+        </div>
+      )}
+      {archivedNotes.length > 0 && (
+        <div className="mt-10 w-full max-w-5xl">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {archivedNotes.map((note, index) => (
+              <ArchiveNotes
+                key={index}
+                title={note.title}
+                notes={note.notes}
+                onClick={() => handleDelete(index)}
+                unArchive={() => handleArchive(index)}
+              />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
 export default Notes;
