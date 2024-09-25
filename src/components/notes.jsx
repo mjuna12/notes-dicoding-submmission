@@ -19,7 +19,10 @@ function Notes() {
 
   const { addNotification } = useNotificationStore()
   const maxCharacters = 200;
+  const maxTitleCharacters = 20
   const notesValue = watch("notes", "");
+  const titleValue = watch("title", "");
+
 
   const onSubmit = (data) => {
     addNote(data);
@@ -55,7 +58,17 @@ function Notes() {
               type="text"
               name="title"
               label="Title"
-              {...register("title", { required: "Title is required" })}
+              onInput={(e) => {
+                if (e.target.value.length > maxTitleCharacters) {
+                  e.target.value = e.target.value.slice(0, maxTitleCharacters); 
+                }
+              }}
+              {...register("title", { required: "Title is required", 
+                maxLength: {
+                  value: 20,
+                  message: "Notes must be at least 20 characters long",
+                },
+               })}
               className="w-full text-white"
             />
             {errors.title && (
@@ -63,11 +76,19 @@ function Notes() {
                 {errors.title.message}
               </span>
             )}
+            <p className="text-sm text-gray-500">
+              {maxTitleCharacters - titleValue.length} characters left
+            </p>
           </div>
           <div className="mb-6">
             <Textarea
               color="primary"
               label="Notes"
+              onInput={(e) => {
+                if (e.target.value.length > maxCharacters) {
+                  e.target.value = e.target.value.slice(0, maxCharacters);
+                }
+              }}
               {...register("notes", {
                 required: "Notes are required",
                 maxLength: {
