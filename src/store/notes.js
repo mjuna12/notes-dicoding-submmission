@@ -2,19 +2,24 @@ import { create } from 'zustand';
 
 const useNotesStore = create((set) => ({
   notes: [
-    { title: 'First Note', notes: 'This is the content of the first note.', archived: false },
-    { title: 'Second Note', notes: 'This is an archived note.', archived: true },
-    { title: 'Third Note', notes: 'This is another active note yeah.', archived: false },
+    { id: '1', title: 'First Note', notes: 'This is the content of the first note.', archived: false },
+    { id: '2', title: 'Second Note', notes: 'This is an archived note.', archived: true },
+    { id: '3', title: 'Third Note', notes: 'This is another active note yeah.', archived: false },
   ],
   addNote: (note) => set((state) => ({
-    notes: [...state.notes, { ...note, archived: false }],
+    notes: [...state.notes, { ...note, id: Date.now().toString(), archived: false }], // Tambahkan ID unik
   })),
-  deleteNote: (index) => set((state) => ({
-    notes: state.notes.filter((_, i) => i !== index),
+  deleteNote: (id) => set((state) => ({
+    notes: state.notes.filter((note) => note.id !== id), // Ganti index dengan id
   })),
-  toggleArchiveNote: (index) => set((state) => ({
-    notes: state.notes.map((note, i) =>
-      i === index ? { ...note, archived: !note.archived } : note
+  archiveNote: (id) => set((state) => ({
+    notes: state.notes.map((note) =>
+      note.id === id ? { ...note, archived: true } : note
+    ),
+  })),
+  unarchiveNote: (id) => set((state) => ({
+    notes: state.notes.map((note) =>
+      note.id === id ? { ...note, archived: false } : note
     ),
   })),
 }));
