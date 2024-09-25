@@ -19,7 +19,7 @@ function Notes() {
   const { notes, addNote, deleteNote, archiveNote, unarchiveNote } = useNotesStore();
 
   const { addNotification } = useNotificationStore()
-  const maxCharacters = 50;
+  const maxCharacters = 150;
   const maxTitleCharacters = 20
   const notesValue = watch("notes", "");
   const titleValue = watch("title", "");
@@ -93,8 +93,8 @@ function Notes() {
               {...register("notes", {
                 required: "Notes are required",
                 maxLength: {
-                  value: 50,
-                  message: "Notes must be at least 50 characters long",
+                  value: 150,
+                  message: "Notes must be at least 150 characters long",
                 },
               })}
               name="notes"
