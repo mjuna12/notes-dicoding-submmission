@@ -5,6 +5,7 @@ import useNotesStore from "../store/notes";
 import SavedNotes from "./card";
 import ArchiveNotes from "./archive";
 import useNotificationStore from "../store/layout";
+import Search from "./search";
 
 function Notes() {
   const {
@@ -18,7 +19,7 @@ function Notes() {
   const { notes, addNote, deleteNote, archiveNote, unarchiveNote } = useNotesStore();
 
   const { addNotification } = useNotificationStore()
-  const maxCharacters = 200;
+  const maxCharacters = 50;
   const maxTitleCharacters = 20
   const notesValue = watch("notes", "");
   const titleValue = watch("title", "");
@@ -69,7 +70,7 @@ function Notes() {
                   message: "Notes must be at least 20 characters long",
                 },
                })}
-              className="w-full text-white"
+              className="w-full text-white transition-transform duration-200 transform hover:scale-105"
             />
             {errors.title && (
               <span className="text-red-500 text-sm">
@@ -92,12 +93,12 @@ function Notes() {
               {...register("notes", {
                 required: "Notes are required",
                 maxLength: {
-                  value: 200,
-                  message: "Notes must be at least 200 characters long",
+                  value: 50,
+                  message: "Notes must be at least 50 characters long",
                 },
               })}
               name="notes"
-              className="w-full text-white"
+              className="w-full text-white transition-transform duration-200 transform hover:scale-105"
             />
             {errors.notes && (
               <span className="text-red-500 text-sm">
@@ -112,15 +113,13 @@ function Notes() {
             color="primary"
             size="lg"
             type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-500 text-white"
+            className="w-full bg-blue-600 hover:bg-blue-500 text-white  transition-transform duration-200 transform hover:scale-105"
           >
             Add Notes
           </Button>
         </form>
       </div>
-
-      {/* Saved Notes */}
-      <h2 className="text-2xl font-bold mt-6">Saved Notes</h2>
+      <h2 className="text-2xl font-bold mt-6">Saved Notes</h2>  
       {activeNotes.length === 0 && (
         <div className="flex items-center justify-center h-64 rounded-lg">
           <p className="text-gray-500 text-lg font-semibold">No active notes available</p>
